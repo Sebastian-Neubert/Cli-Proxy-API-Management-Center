@@ -1592,7 +1592,7 @@
     "rebind_quota": "hết quota",
     "rebind_never": "không bao giờ",
     "refresh": "Làm mới",
-    "in_memory_note": "Cửa sổ quota và thời điểm đặt lại chỉ lấy từ phản hồi upstream thực tế và được giữ trong bộ nhớ proxy. Sau khi proxy khởi động lại, chúng chưa xác định cho đến khi mỗi tài khoản xử lý một yêu cầu; tài khoản chưa có dữ liệu hiển thị \"không rõ\".",
+    "in_memory_note": "Cửa sổ quota và thời điểm đặt lại chỉ lấy từ phản hồi upstream thực tế. Proxy giữ chúng trong bộ nhớ và, khi đặt routing.state-file, khôi phục chúng (cùng lịch sử sử dụng và liên kết phiên) sau khi khởi động lại; nếu không, chúng chưa xác định cho đến khi mỗi tài khoản xử lý một yêu cầu. Tài khoản chưa có dữ liệu hiển thị \"không rõ\".",
     "strategy_inactive_note": "Chiến lược định tuyến là {{strategy}}, không phải soonest-reset. Bảng xếp hạng bên dưới cho thấy soonest-reset sẽ chọn tài khoản nào.",
     "routing_unavailable": "Phiên bản proxy này không cung cấp ưu tiên định tuyến nên bảng xếp hạng bị ẩn.",
     "routing_error": "Không thể tải ưu tiên định tuyến: {{message}}",

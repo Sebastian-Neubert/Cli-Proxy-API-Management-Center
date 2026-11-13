@@ -1630,7 +1630,7 @@
     "rebind_quota": "额度耗尽",
     "rebind_never": "从不",
     "refresh": "刷新",
-    "in_memory_note": "额度窗口和重置时间仅来自真实的上游响应，并保存在代理内存中。代理重启后，在各账户处理请求之前这些数据未知；没有数据的账户显示为“未知”。",
+    "in_memory_note": "额度窗口和重置时间仅来自真实的上游响应。代理将其保存在内存中；设置 routing.state-file 后，重启时会恢复这些数据（连同用量历史和会话绑定），否则在各账户处理请求之前这些数据未知。没有数据的账户显示为“未知”。",
     "strategy_inactive_note": "当前路由策略为 {{strategy}}，而非 soonest-reset。下方排名展示 soonest-reset 将会选择的账户。",
     "routing_unavailable": "当前代理版本未提供路由偏好，因此不显示排名。",
     "routing_error": "无法加载路由偏好：{{message}}",

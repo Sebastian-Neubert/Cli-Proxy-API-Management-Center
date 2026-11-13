@@ -1658,7 +1658,7 @@
     "rebind_quota": "額度耗盡",
     "rebind_never": "從不",
     "refresh": "重新整理",
-    "in_memory_note": "額度視窗與重置時間僅來自真實的上游回應，並保存在代理記憶體中。代理重新啟動後，在各帳戶處理請求之前這些資料未知；沒有資料的帳戶顯示為「未知」。",
+    "in_memory_note": "額度視窗與重置時間僅來自真實的上游回應。代理將其保存在記憶體中；設定 routing.state-file 後，重新啟動時會還原這些資料（連同用量歷史與工作階段綁定），否則在各帳戶處理請求之前這些資料未知。沒有資料的帳戶顯示為「未知」。",
     "strategy_inactive_note": "目前路由策略為 {{strategy}}，而非 soonest-reset。下方排名顯示 soonest-reset 將會選擇的帳戶。",
     "routing_unavailable": "目前代理版本未提供路由偏好，因此不顯示排名。",
     "routing_error": "無法載入路由偏好：{{message}}",

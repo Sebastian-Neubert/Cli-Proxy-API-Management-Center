@@ -1636,7 +1636,7 @@
     "rebind_quota": "kota tükenmesi",
     "rebind_never": "hiçbir zaman",
     "refresh": "Yenile",
-    "in_memory_note": "Kota pencereleri ve sıfırlama zamanları yalnızca gerçek upstream yanıtlarından gelir ve proxy belleğinde tutulur. Proxy yeniden başlatıldıktan sonra her hesap bir istek işleyene kadar bilinmez; verisi olmayan hesaplar \"bilinmiyor\" olarak gösterilir.",
+    "in_memory_note": "Kota pencereleri ve sıfırlama zamanları yalnızca gerçek upstream yanıtlarından gelir. Proxy bunları bellekte tutar ve routing.state-file ayarlıysa yeniden başlatmadan sonra (kullanım geçmişi ve oturum bağlarıyla birlikte) geri yükler; aksi halde her hesap bir istek işleyene kadar bilinmez. Verisi olmayan hesaplar \"bilinmiyor\" olarak gösterilir.",
     "strategy_inactive_note": "Yönlendirme stratejisi soonest-reset değil, {{strategy}}. Aşağıdaki sıralama soonest-reset stratejisinin neyi seçeceğini gösterir.",
     "routing_unavailable": "Bu proxy sürümü yönlendirme tercihini bildirmiyor; sıralama gizlendi.",
     "routing_error": "Yönlendirme tercihi yüklenemedi: {{message}}",

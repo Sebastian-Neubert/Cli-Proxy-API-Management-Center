@@ -1636,7 +1636,7 @@
     "rebind_quota": "quota exhaustion",
     "rebind_never": "never",
     "refresh": "Refresh",
-    "in_memory_note": "Quota windows and reset times come only from real upstream responses and are kept in proxy memory. After a proxy restart they are unknown until each account serves a request; accounts without data show \"unknown\".",
+    "in_memory_note": "Quota windows and reset times come only from real upstream responses. The proxy keeps them in memory and, when routing.state-file is set, restores them (with usage history and session bindings) after a restart; otherwise they are unknown until each account serves a request. Accounts without data show \"unknown\".",
     "strategy_inactive_note": "The routing strategy is {{strategy}}, not soonest-reset. The ranking below shows what soonest-reset would pick.",
     "routing_unavailable": "This proxy version does not report a routing preference, so the ranking is hidden.",
     "routing_error": "Could not load the routing preference: {{message}}",
