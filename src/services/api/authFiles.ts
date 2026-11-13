@@ -16,6 +16,7 @@ import {
 } from '@/utils/recentRequests';
 import { parseTimestampMs } from '@/utils/timestamp';
 import { normalizeAuthFileCooldowns, normalizeCooldownTimestamp } from './authFileCooldowns';
+import { normalizeQuotaReset, normalizeQuotaWindows, normalizeTokenUsage } from './quotaPool';
 
 type AuthFileStatusResponse = { status: string; disabled: boolean };
 export type AuthFileLookup = { name: string; authIndex?: string };
@@ -285,6 +286,9 @@ const normalizeAuthFileEntry = (
     readTextField(entry, 'quota_provider') || readTextField(entry, 'quotaProvider');
   const quotaPluginId =
     readTextField(entry, 'quota_plugin_id') || readTextField(entry, 'quotaPluginId');
+  const quotaWindows = normalizeQuotaWindows(entry['quota_windows']);
+  const quotaReset = normalizeQuotaReset(entry['quota_reset']);
+  const tokenUsage = normalizeTokenUsage(entry['token_usage']);
 
   return {
     ...entry,
@@ -298,6 +302,9 @@ const normalizeAuthFileEntry = (
     ...(supportsQuota !== undefined ? { supportsQuota } : {}),
     ...(quotaProvider ? { quotaProvider } : {}),
     quotaPluginId: quotaPluginId || undefined,
+    ...(quotaWindows ? { quotaWindows } : {}),
+    ...(quotaReset ? { quotaReset } : {}),
+    ...(tokenUsage ? { tokenUsage } : {}),
     recentRequests: normalizeRecentRequestBuckets(entry.recent_requests ?? entry.recentRequests),
     successCount: normalizeUsageTotal(entry.success),
     failureCount: normalizeUsageTotal(entry.failed),

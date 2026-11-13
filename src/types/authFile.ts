@@ -3,6 +3,7 @@
  */
 
 import type { RecentRequestBucket } from '@/utils/recentRequests';
+import type { QuotaResetInfo, QuotaWindow, TokenUsageSnapshot } from './quotaPool';
 
 export type AuthFileType =
   | 'qwen'
@@ -81,6 +82,12 @@ export interface AuthFileItem {
   recentRequests?: RecentRequestBucket[];
   /** Absent on older servers. Never interpreted as credential health. */
   cooldownSnapshot?: AuthFileCooldownSnapshot;
+  /** In-memory upstream rate-limit windows; absent until the account served a request. */
+  quotaWindows?: QuotaWindow[];
+  /** Long-window reset soonest-reset routing ranks on; absent when unknown. */
+  quotaReset?: QuotaResetInfo;
+  /** Per-credential token buckets for the current hour and the last 24 hours. */
+  tokenUsage?: TokenUsageSnapshot;
   [key: string]: unknown;
 }
 
