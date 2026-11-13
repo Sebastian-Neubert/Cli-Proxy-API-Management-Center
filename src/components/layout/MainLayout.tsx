@@ -657,6 +657,12 @@ export function MainLayout() {
           icon: sidebarIcons.quota,
         },
         {
+          path: '/quota-pool',
+          labelKey: 'nav.quota_pool',
+          metaKey: 'nav_meta.quota_pool',
+          icon: sidebarIcons.routing,
+        },
+        {
           path: '/logs',
           labelKey: 'nav.logs',
           metaKey: 'nav_meta.logs',
