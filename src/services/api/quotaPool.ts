@@ -3,13 +3,18 @@
  *
  * `GET /credentials` entries may carry `quota_windows`, `quota_reset` and `token_usage`;
  * `GET /routing/preference` ranks Claude/Codex accounts the way soonest-reset routing does.
- * Older backends omit the fields and answer the preference route with 404.
+ * `GET /quota/history` returns recorded quota windows per Claude/Codex account.
+ * Older backends omit the fields and answer the preference and history routes with 404.
  */
 
 import { apiClient } from './client';
 import { isRecord } from '@/utils/helpers';
 import { parseTimestampMs } from '@/utils/timestamp';
 import type {
+  QuotaHistory,
+  QuotaHistoryAccount,
+  QuotaHistoryPoint,
+  QuotaHistoryProvider,
   QuotaResetInfo,
   QuotaWindow,
   RoutingPreference,
@@ -147,6 +152,57 @@ export function normalizeRoutingPreference(value: unknown): RoutingPreference {
   };
 }
 
+const normalizeHistoryPoint = (value: Record<string, unknown>): QuotaHistoryPoint | null => {
+  const tMs = readInstantMs(value.t ?? value.observed_at);
+  if (tMs === null) return null;
+  return { tMs, windows: normalizeQuotaWindows(value.windows) ?? [] };
+};
+
+const normalizeHistoryAccount = (value: Record<string, unknown>): QuotaHistoryAccount | null => {
+  const id = readText(value.id);
+  const authIndex = readText(value.auth_index) || (readNumber(value.auth_index)?.toString() ?? '');
+  const name = readText(value.name);
+  if (!id && !authIndex && !name) return null;
+  const points = (Array.isArray(value.points) ? value.points : [])
+    .filter(isRecord)
+    .map(normalizeHistoryPoint)
+    .filter((point): point is QuotaHistoryPoint => point !== null)
+    .sort((left, right) => left.tMs - right.tMs);
+  return {
+    id,
+    authIndex,
+    name,
+    email: readText(value.email),
+    disabled: value.disabled === true,
+    points,
+  };
+};
+
+const normalizeHistoryProvider = (value: Record<string, unknown>): QuotaHistoryProvider | null => {
+  const provider = readText(value.provider).toLowerCase();
+  if (!provider) return null;
+  return {
+    provider,
+    accounts: (Array.isArray(value.accounts) ? value.accounts : [])
+      .filter(isRecord)
+      .map(normalizeHistoryAccount)
+      .filter((account): account is QuotaHistoryAccount => account !== null),
+  };
+};
+
+export function normalizeQuotaHistory(value: unknown): QuotaHistory {
+  const source = isRecord(value) ? value : {};
+  const retention = readNumber(source.retention_hours);
+  return {
+    generatedAtMs: readInstantMs(source.generated_at),
+    retentionHours: retention !== null && retention > 0 ? retention : null,
+    providers: (Array.isArray(source.providers) ? source.providers : [])
+      .filter(isRecord)
+      .map(normalizeHistoryProvider)
+      .filter((provider): provider is QuotaHistoryProvider => provider !== null),
+  };
+}
+
 const isNotFound = (error: unknown): boolean =>
   isRecord(error) && (error as { status?: unknown }).status === 404;
 
@@ -155,6 +211,25 @@ export const quotaPoolApi = {
   async getRoutingPreference(): Promise<RoutingPreference | null> {
     try {
       return normalizeRoutingPreference(await apiClient.get<unknown>('/routing/preference'));
+    } catch (error: unknown) {
+      if (isNotFound(error)) return null;
+      throw error;
+    }
+  },
+
+  /**
+   * Recorded quota windows since `sinceMs` (the backend defaults to 14 days back).
+   * Resolves null when the backend predates the history route (404).
+   */
+  async getQuotaHistory(sinceMs?: number | null): Promise<QuotaHistory | null> {
+    const params =
+      sinceMs !== undefined && sinceMs !== null && Number.isFinite(sinceMs)
+        ? { since: new Date(sinceMs).toISOString() }
+        : undefined;
+    try {
+      return normalizeQuotaHistory(
+        await apiClient.get<unknown>('/quota/history', params ? { params } : undefined)
+      );
     } catch (error: unknown) {
       if (isNotFound(error)) return null;
       throw error;

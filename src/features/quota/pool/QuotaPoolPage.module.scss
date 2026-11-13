@@ -412,3 +412,318 @@
 .usageFailed {
   color: var(--viz-failure);
 }
+
+/* ---------- subscription usage overview ---------- */
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.overviewToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.toolbarGroup,
+.toolbarRange {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbarRange {
+  margin-left: auto;
+
+  @include mobile {
+    margin-left: 0;
+  }
+}
+
+.toolbarLabel {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    font: inherit;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    transition:
+      color var(--dur-hover) var(--ease-out-strong),
+      background-color var(--dur-hover) var(--ease-out-strong);
+
+    &:hover:not(:disabled) {
+      color: var(--text-primary);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-30);
+      outline-offset: 1px;
+    }
+
+    &[aria-pressed='true'] {
+      background: var(--floating-surface, var(--bg-primary));
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+  }
+}
+
+.overviewCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  min-width: 0;
+}
+
+.overviewHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.overviewTitleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.overviewTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.overviewCount {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.overviewHeadline {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+}
+
+.overviewBig {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.overviewOf {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.overviewStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  gap: 6px 28px;
+  margin: 0;
+
+  @include mobile {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.overviewStat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+
+  dt {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  dd {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+}
+
+.overviewIdentity,
+.overviewIdentityMasked {
+  max-width: 160px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  @include text-ellipsis;
+}
+
+.overviewIdentityMasked {
+  filter: blur(3px);
+  user-select: none;
+}
+
+.overviewChart {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.overviewSvg {
+  display: block;
+  max-width: 100%;
+  overflow: visible;
+  outline: none;
+  border-radius: 8px;
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--primary-30);
+  }
+}
+
+.overviewGrid {
+  line {
+    stroke: var(--border-color);
+    stroke-width: 1;
+  }
+
+  text {
+    fill: var(--text-tertiary);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.overviewDayLine {
+  opacity: 0.45;
+}
+
+.overviewAccountLine path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.45;
+}
+
+.overviewAnnotation {
+  fill: var(--text-secondary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.overviewNow {
+  line {
+    stroke: var(--text-tertiary);
+    stroke-width: 1;
+  }
+
+  text {
+    fill: var(--text-tertiary);
+    font-size: 11px;
+  }
+}
+
+.overviewEmpty {
+  circle {
+    fill: var(--bg-primary);
+    stroke-width: 2;
+  }
+
+  text {
+    fill: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.overviewHover line {
+  stroke: var(--text-quaternary);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.overviewTooltip {
+  position: absolute;
+  top: 0;
+  padding: 4px 9px;
+  border-radius: 7px;
+  border: 1px solid var(--border-color);
+  background: var(--floating-surface, var(--bg-primary));
+  box-shadow: var(--floating-shadow);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.overviewLegend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.overviewLegendTitle {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.overviewLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.overviewLegendNote {
+  color: var(--text-tertiary);
+}
