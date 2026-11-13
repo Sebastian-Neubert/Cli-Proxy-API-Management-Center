@@ -479,6 +479,8 @@ export function resolveRoute(
     if (!hasActive && total > 0) {
       state = 'active';
       hasActive = true;
+      // soonest-reset orders the tier by earliest known weekly reset and rotates the rest
+      // round-robin; without live reset data the board shows it as an even split.
       if (strategy !== 'fill-first') {
         for (const member of members) {
           const value = units.get(member.key);

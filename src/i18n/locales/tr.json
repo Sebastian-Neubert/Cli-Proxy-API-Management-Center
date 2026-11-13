@@ -221,7 +221,8 @@
     "ws_auth_enable": "/ws/* için Kimlik Doğrulama İste",
     "routing_strategy_round_robin": "Round-Robin (Döngü)",
     "routing_strategy_weighted_round_robin": "Weighted-Round-Robin (Ağırlıklı Döngü)",
-    "routing_strategy_fill_first": "Fill-First (Önceliklendir)"
+    "routing_strategy_fill_first": "Fill-First (Önceliklendir)",
+    "routing_strategy_soonest_reset": "Soonest-Reset (En Yakın Haftalık Sıfırlama)"
   },
   "auth_files": {
     "sync_catalog_button": "Model kataloğunu eşitle",
@@ -1474,6 +1475,7 @@
           "strategy_round_robin": "Round Robin",
           "strategy_weighted_round_robin": "Ağırlıklı Round Robin",
           "strategy_fill_first": "Fill First",
+          "strategy_soonest_reset": "Soonest Reset",
           "session_affinity_ttl": "Oturum Yakınlığı TTL",
           "force_model_prefix": "Model Önekini Zorla",
           "force_model_prefix_desc": "Öneksiz Model İstekleri Yalnızca Öneki Olmayan Kimlik Bilgilerini Kullanır",
@@ -1788,9 +1790,11 @@
     "strategy_round_robin": "Döngüsel",
     "strategy_weighted_round_robin": "Ağırlıklı döngüsel",
     "strategy_fill_first": "Önce doldur",
+    "strategy_soonest_reset": "En yakın sıfırlama",
     "strategy_round_robin_desc": "Katmandaki her kimlik sırayla istek alır.",
     "strategy_weighted_round_robin_desc": "İstekler katman içinde ağırlığa göre bölünür.",
     "strategy_fill_first_desc": "Bir kimlik kullanılamaz olana kadar her şeyi alır, sonra sıradakine geçilir.",
+    "strategy_soonest_reset_desc": "Haftalık kotası en erken sıfırlanan hesabı tercih eder; sıfırlama zamanı bilinmeyenler round-robin ile döner.",
     "affinity_label": "Oturum bağlılığı",
     "affinity_desc": "Bir oturumun istekleri aynı kimliğe gider; kullanılamazsa otomatik olarak devredilir.",
     "retry_label": "Yük devretme",
