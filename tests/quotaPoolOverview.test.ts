@@ -347,6 +347,18 @@ describe('projection', () => {
     expect(projection.firstEmpty).toBeNull();
     expect(projection.resets).toEqual([{ tMs: NOW + 2 * H, amount: 60 }]);
   });
+
+  test('an exhausted pool is empty now even without burn', () => {
+    const projection = simulateProjection({
+      states: [state(0, NOW + 2 * H), state(0, null)],
+      nowMs: NOW,
+      endMs: NOW + 4 * H,
+      burnPerHour: 0,
+      futureUsage: 'same',
+      stepMs: H,
+    });
+    expect(projection.poolEmptyMs).toBe(NOW);
+  });
 });
 
 describe('overview model', () => {
@@ -424,6 +436,15 @@ describe('overview model', () => {
     expect(model.unknownCount).toBe(1);
     expect(model.burnPerHour).toBeNull();
     expect(model.recorded.points).toEqual([]);
+    expect(model.projectedBurnPerHour).toBeNull();
+    const none = buildOverviewModel(overview, {
+      nowMs: NOW,
+      ...range,
+      burnWindowHours: 3,
+      futureUsage: 'none',
+      hasHistory: false,
+    });
+    expect(none.projectedBurnPerHour).toBe(0);
   });
 });
 

@@ -302,7 +302,7 @@ export function simulateProjection(input: ProjectionInput): Projection {
   states.forEach((state, index) => {
     if (firstEmpty === null && state.remaining <= EPSILON) firstEmpty = { tMs: nowMs, index };
   });
-  if (states.length > 0 && poolEmptyMs === null && burn > 0) {
+  if (states.length > 0 && poolEmptyMs === null) {
     if (states.every((state) => state.remaining <= EPSILON)) poolEmptyMs = nowMs;
   }
   push(nowMs);

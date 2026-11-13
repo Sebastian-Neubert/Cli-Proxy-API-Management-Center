@@ -125,14 +125,15 @@ export function PoolOverviewChart({
   const projected: XYPoint[] = useMemo(() => {
     if (isDrain) {
       const from = Math.max(nowMs, startMs);
-      if (from >= endMs || model.burnPerHour === null) return [];
+      const projectedBurn = model.projectedBurnPerHour;
+      if (from >= endMs || projectedBurn === null) return [];
       return [
-        { tMs: from, value: burn },
-        { tMs: endMs, value: burn },
+        { tMs: from, value: projectedBurn },
+        { tMs: endMs, value: projectedBurn },
       ];
     }
     return clipSeries(model.projection.points, startMs, endMs);
-  }, [isDrain, nowMs, startMs, endMs, model, burn]);
+  }, [isDrain, nowMs, startMs, endMs, model]);
 
   const yMax = isDrain
     ? niceCeil(Math.max(1, burn, ...recorded.map((point) => point.value ?? 0)) * 1.15)

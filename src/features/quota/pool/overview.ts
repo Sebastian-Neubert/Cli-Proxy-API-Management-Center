@@ -113,6 +113,8 @@ export interface OverviewModel {
   unknownCount: number;
   /** Null when no history is available. */
   burnPerHour: number | null;
+  /** Burn rate the projection uses: 0 for future usage "none", otherwise burnPerHour. */
+  projectedBurnPerHour: number | null;
   recorded: RecordedSeries;
   drain: RatePoint[];
   projection: Projection;
@@ -153,6 +155,7 @@ export function buildOverviewModel(
     remaining: states.reduce((sum, state) => sum + state.remaining, 0),
     unknownCount: states.filter((state) => state.unknown).length,
     burnPerHour,
+    projectedBurnPerHour: options.futureUsage === 'none' ? 0 : burnPerHour,
     recorded,
     drain,
     projection,
