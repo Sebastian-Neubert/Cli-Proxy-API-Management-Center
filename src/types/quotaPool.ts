@@ -69,3 +69,31 @@ export interface RoutingPreference {
   generatedAtMs: number | null;
   providers: RoutingPreferenceProvider[];
 }
+
+/** One recorded observation of an account's quota windows (`GET /quota/history`). */
+export interface QuotaHistoryPoint {
+  /** Observation instant (epoch ms). */
+  tMs: number;
+  windows: QuotaWindow[];
+}
+
+export interface QuotaHistoryAccount {
+  id: string;
+  authIndex: string;
+  name: string;
+  email: string;
+  disabled: boolean;
+  /** Ascending by `tMs`. */
+  points: QuotaHistoryPoint[];
+}
+
+export interface QuotaHistoryProvider {
+  provider: string;
+  accounts: QuotaHistoryAccount[];
+}
+
+export interface QuotaHistory {
+  generatedAtMs: number | null;
+  retentionHours: number | null;
+  providers: QuotaHistoryProvider[];
+}

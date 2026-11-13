@@ -16,7 +16,8 @@ import { authFilesApi } from '@/services/api/authFiles';
 import { quotaPoolApi } from '@/services/api/quotaPool';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
 import type { AuthFileItem } from '@/types/authFile';
-import type { RoutingPreference } from '@/types/quotaPool';
+import type { QuotaHistory, RoutingPreference } from '@/types/quotaPool';
+import { DAY_MS } from '@/utils/time/durations';
 import {
   getAuthFileIcon,
   getThemeSurfaceIconBackground,
@@ -27,13 +28,23 @@ import bodyStyles from '../components/QuotaBody.module.scss';
 import headerStyles from '../components/QuotaHeader.module.scss';
 import { bindQuotaClasses } from '../types';
 import { PoolAccountCard } from './components/PoolAccountCard';
+import { PoolOverview, type HistoryStatus } from './components/PoolOverview';
 import { PoolRoutingPanel } from './components/PoolRoutingPanel';
 import { PoolSummaryRow } from './components/PoolSummaryRow';
-import { POOL_PROVIDERS, buildPoolAccounts, summarizePool, type PoolAccount } from './logic';
+import {
+  POOL_PROVIDERS,
+  buildPoolAccounts,
+  summarizePool,
+  type PoolAccount,
+  type PoolProvider,
+} from './logic';
 import styles from './QuotaPoolPage.module.scss';
 
 /** Bind the quota-page row styles to the shared rendering contract. */
 const quotaClasses = bindQuotaClasses(bodyStyles, 'QuotaBody.module.scss');
+
+/** The backend defaults `since` to 14 days back; only ask explicitly for older data. */
+const DEFAULT_HISTORY_SPAN_MS = 14 * DAY_MS;
 
 const errorMessage = (error: unknown, fallback: string): string =>
   error instanceof Error && error.message ? error.message : fallback;
@@ -52,9 +63,49 @@ export function QuotaPoolPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pending, setPending] = useState<ReadonlySet<string>>(() => new Set());
+  const [history, setHistory] = useState<QuotaHistory | null>(null);
+  const [historyStatus, setHistoryStatus] = useState<HistoryStatus>('loading');
+  const [historyError, setHistoryError] = useState('');
   const requestRef = useRef(0);
+  const historyRequestRef = useRef(0);
+  /** Explicit `since` once the user navigated beyond the default span; null = default. */
+  const historySinceRef = useRef<number | null>(null);
 
   const connected = connectionStatus === 'connected';
+
+  const loadHistory = useCallback(async () => {
+    const requestId = ++historyRequestRef.current;
+    const revision = apiClient.getConnectionRevision();
+    const isCurrent = () =>
+      requestId === historyRequestRef.current && revision === apiClient.getConnectionRevision();
+    if (!connected) {
+      setHistory(null);
+      setHistoryStatus('loading');
+      return;
+    }
+    try {
+      const result = await quotaPoolApi.getQuotaHistory(historySinceRef.current);
+      if (!isCurrent()) return;
+      setHistory(result);
+      setHistoryStatus(result === null ? 'missing' : 'ok');
+      setHistoryError('');
+    } catch (err: unknown) {
+      if (!isCurrent()) return;
+      setHistory(null);
+      setHistoryStatus('error');
+      setHistoryError(errorMessage(err, t('common.unknown_error')));
+    }
+  }, [connected, t]);
+
+  const handleNeedHistorySince = useCallback(
+    (sinceMs: number) => {
+      const loadedSince = historySinceRef.current ?? Date.now() - DEFAULT_HISTORY_SPAN_MS;
+      if (sinceMs >= loadedSince) return;
+      historySinceRef.current = sinceMs;
+      void loadHistory();
+    },
+    [loadHistory]
+  );
 
   const load = useCallback(async () => {
     const requestId = ++requestRef.current;
@@ -72,6 +123,7 @@ export function QuotaPoolPage() {
     const [filesResult, preferenceResult] = await Promise.allSettled([
       authFilesApi.list(),
       quotaPoolApi.getRoutingPreference(),
+      loadHistory(),
     ]);
     if (!isCurrent()) return;
     if (filesResult.status === 'fulfilled') {
@@ -89,7 +141,7 @@ export function QuotaPoolPage() {
       setPreferenceError(errorMessage(preferenceResult.reason, t('common.unknown_error')));
     }
     setLoading(false);
-  }, [connected, t]);
+  }, [connected, loadHistory, t]);
 
   useHeaderRefresh(load);
 
@@ -97,6 +149,7 @@ export function QuotaPoolPage() {
     void load();
     return () => {
       requestRef.current += 1;
+      historyRequestRef.current += 1;
     };
   }, [load]);
 
@@ -153,6 +206,22 @@ export function QuotaPoolPage() {
   );
 
   const rebindMode = preference?.sessionAffinityRebindOn || 'any';
+
+  const renderProviderIcon = (provider: PoolProvider) => {
+    const iconSrc = getAuthFileIcon(provider, resolvedTheme);
+    return (
+      <span
+        className={styles.providerIcon}
+        style={
+          isThemeSurfaceIconProvider(provider)
+            ? { background: getThemeSurfaceIconBackground(resolvedTheme) }
+            : undefined
+        }
+      >
+        {iconSrc ? <img src={iconSrc} alt="" /> : getTypeLabel(t, provider).slice(0, 1)}
+      </span>
+    );
+  };
 
   return (
     <div className={styles.page}>
@@ -234,50 +303,54 @@ export function QuotaPoolPage() {
           />
         )
       ) : (
-        visibleProviders.map((provider) => {
-          const accounts = accountsByProvider[provider];
-          const iconSrc = getAuthFileIcon(provider, resolvedTheme);
-          const label = getTypeLabel(t, provider);
-          return (
-            <section key={provider} className={styles.provider} aria-label={label}>
-              <h2 className={styles.providerTitle}>
-                <span
-                  className={styles.providerIcon}
-                  style={
-                    isThemeSurfaceIconProvider(provider)
-                      ? { background: getThemeSurfaceIconBackground(resolvedTheme) }
-                      : undefined
-                  }
-                >
-                  {iconSrc ? <img src={iconSrc} alt="" /> : label.slice(0, 1)}
-                </span>
-                {label}
-              </h2>
-              <PoolSummaryRow summary={summarizePool(accounts, nowMs)} nowMs={nowMs} />
-              {preference && (
-                <PoolRoutingPanel
-                  preference={preference}
-                  provider={preference.providers.find((item) => item.provider === provider)}
-                  nowMs={nowMs}
-                />
-              )}
-              <p className={styles.hint}>{t('quota_pool.usage_hint')}</p>
-              <div className={styles.accounts}>
-                {accounts.map((account) => (
-                  <PoolAccountCard
-                    key={account.key}
-                    account={account}
-                    classes={quotaClasses}
+        <>
+          <PoolOverview
+            providers={visibleProviders}
+            accountsByProvider={accountsByProvider}
+            history={history}
+            historyStatus={historyStatus}
+            historyError={historyError}
+            nowMs={nowMs}
+            resolvedTheme={resolvedTheme}
+            labelFor={(provider) => getTypeLabel(t, provider)}
+            iconFor={renderProviderIcon}
+            onNeedHistorySince={handleNeedHistorySince}
+          />
+          {visibleProviders.map((provider) => {
+            const accounts = accountsByProvider[provider];
+            const label = getTypeLabel(t, provider);
+            return (
+              <section key={provider} className={styles.provider} aria-label={label}>
+                <h2 className={styles.providerTitle}>
+                  {renderProviderIcon(provider)}
+                  {label}
+                </h2>
+                <PoolSummaryRow summary={summarizePool(accounts, nowMs)} nowMs={nowMs} />
+                {preference && (
+                  <PoolRoutingPanel
+                    preference={preference}
+                    provider={preference.providers.find((item) => item.provider === provider)}
                     nowMs={nowMs}
-                    pending={pending.has(account.key)}
-                    disableControls={!connected}
-                    onToggle={(target, enabled) => void handleToggle(target, enabled)}
                   />
-                ))}
-              </div>
-            </section>
-          );
-        })
+                )}
+                <p className={styles.hint}>{t('quota_pool.usage_hint')}</p>
+                <div className={styles.accounts}>
+                  {accounts.map((account) => (
+                    <PoolAccountCard
+                      key={account.key}
+                      account={account}
+                      classes={quotaClasses}
+                      nowMs={nowMs}
+                      pending={pending.has(account.key)}
+                      disableControls={!connected}
+                      onToggle={(target, enabled) => void handleToggle(target, enabled)}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </>
       )}
     </div>
   );
