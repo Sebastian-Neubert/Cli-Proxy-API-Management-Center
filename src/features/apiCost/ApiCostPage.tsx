@@ -23,6 +23,7 @@ import styles from './ApiCostPage.module.scss';
 
 /** The backend defaults `since` to 30 days back; only ask explicitly for longer ranges. */
 const DEFAULT_SPAN_DAYS = 30;
+const MAX_RANGE_DAYS: RangeDays = 90;
 
 type LoadStatus = 'loading' | 'ok' | 'missing' | 'error';
 
@@ -59,8 +60,16 @@ export function ApiCostPage() {
     }
     setLoading(true);
     try {
-      const result = await apiCostApi.getUsageCost(sinceRef.current);
+      let result = await apiCostApi.getUsageCost(sinceRef.current, isCurrent);
       if (!isCurrent()) return;
+      if (result && result.buckets.length === 0 && sinceRef.current === null) {
+        // Nothing in the default window: look at the longest range before showing the empty
+        // state, so usage retained from 31-90 days ago stays reachable.
+        sinceRef.current = windowStartMs(Date.now(), MAX_RANGE_DAYS);
+        result = await apiCostApi.getUsageCost(sinceRef.current, isCurrent);
+        if (!isCurrent()) return;
+        if (result && result.buckets.length > 0) setRangeDays(MAX_RANGE_DAYS);
+      }
       setReport(result);
       setStatus(result === null ? 'missing' : 'ok');
       setError('');

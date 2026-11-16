@@ -1,4 +1,13 @@
-import { afterAll, afterEach, beforeAll, describe, expect, spyOn, test } from 'bun:test';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  spyOn,
+  test,
+} from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -167,8 +176,21 @@ describe('api cost normalization', () => {
 });
 
 describe('api cost API', () => {
+  // Requests go through a connection-bound client; hand back the singleton so `get` can be spied.
+  beforeEach(() => {
+    spyOn(apiClient, 'captureConnection').mockImplementation(() => apiClient);
+  });
+
   afterEach(() => {
     (apiClient.get as unknown as { mockRestore?: () => void }).mockRestore?.();
+    (apiClient.captureConnection as unknown as { mockRestore?: () => void }).mockRestore?.();
+  });
+
+  test('binds the request to the current connection', async () => {
+    spyOn(apiClient, 'get').mockImplementation((async () => PAYLOAD) as typeof apiClient.get);
+    const isCurrent = () => true;
+    await apiCostApi.getUsageCost(null, isCurrent);
+    expect(apiClient.captureConnection).toHaveBeenCalledWith(isCurrent);
   });
 
   test('omits since by default and normalizes the payload', async () => {

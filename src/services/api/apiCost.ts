@@ -111,16 +111,21 @@ const isNotFound = (error: unknown): boolean =>
 export const apiCostApi = {
   /**
    * Hourly cost buckets since `sinceMs` (the backend defaults to 30 days back).
-   * Resolves null when the backend predates the cost route (404).
+   * Resolves null when the backend predates the cost route (404). The request is bound to the
+   * current connection, so a late response cannot affect a newer session.
    */
-  async getUsageCost(sinceMs?: number | null): Promise<ApiCostReport | null> {
+  async getUsageCost(
+    sinceMs?: number | null,
+    isCurrent?: () => boolean
+  ): Promise<ApiCostReport | null> {
     const params =
       sinceMs !== undefined && sinceMs !== null && Number.isFinite(sinceMs)
         ? { since: new Date(sinceMs).toISOString() }
         : undefined;
+    const client = apiClient.captureConnection(isCurrent);
     try {
       return normalizeApiCostReport(
-        await apiClient.get<unknown>('/observability/usage/cost', params ? { params } : undefined)
+        await client.get<unknown>('/observability/usage/cost', params ? { params } : undefined)
       );
     } catch (error: unknown) {
       if (isNotFound(error)) return null;
