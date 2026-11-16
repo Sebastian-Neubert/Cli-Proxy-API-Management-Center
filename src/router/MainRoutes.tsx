@@ -7,6 +7,7 @@ import { AuthFilesOAuthModelAliasEditPage } from '@/pages/AuthFilesOAuthModelAli
 import { OAuthPage } from '@/features/oauth/OAuthPage';
 import { QuotaPage } from '@/features/quota/QuotaPage';
 import { QuotaPoolPage } from '@/features/quota/pool/QuotaPoolPage';
+import { ApiCostPage } from '@/features/apiCost/ApiCostPage';
 import { RoutingPage } from '@/features/routing/RoutingPage';
 import { PluginResourcePage } from '@/features/plugins/PluginResourcePage';
 import { PluginsPage } from '@/features/plugins/PluginsPage';
@@ -32,6 +33,7 @@ const createMainRoutes = (supportsPlugin: boolean) => [
   { path: '/routing', element: <RoutingPage /> },
   { path: '/quota', element: <QuotaPage /> },
   { path: '/quota-pool', element: <QuotaPoolPage /> },
+  { path: '/api-cost', element: <ApiCostPage /> },
   ...(supportsPlugin
     ? [
         { path: '/plugin-pages/:pluginId/:menuIndex', element: <PluginResourcePage /> },

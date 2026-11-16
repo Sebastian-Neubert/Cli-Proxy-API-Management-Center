@@ -31,6 +31,7 @@ import {
   IconSidebarStore,
   IconSidebarSystem,
   IconChevronDown,
+  IconDollarSign,
 } from '@/components/ui/icons';
 import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
 import {
@@ -67,6 +68,7 @@ const sidebarIcons: Record<string, ReactNode> = {
   pluginStore: <IconSidebarStore size={18} />,
   config: <IconSidebarConfig size={18} />,
   logs: <IconSidebarLogs size={18} />,
+  apiCost: <IconDollarSign size={18} />,
   system: <IconSidebarSystem size={18} />,
 };
 
@@ -661,6 +663,12 @@ export function MainLayout() {
           labelKey: 'nav.quota_pool',
           metaKey: 'nav_meta.quota_pool',
           icon: sidebarIcons.routing,
+        },
+        {
+          path: '/api-cost',
+          labelKey: 'nav.api_cost',
+          metaKey: 'nav_meta.api_cost',
+          icon: sidebarIcons.apiCost,
         },
         {
           path: '/logs',
