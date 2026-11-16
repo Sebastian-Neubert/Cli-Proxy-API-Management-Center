@@ -1,0 +1,423 @@
+@use '../../styles/mixins' as *;
+
+/* ============================================================
+ * API cost: window tiles, stacked daily cost chart, per-model and per-credential tables.
+ * Same paper/border recipe as the quota pool; money and counts are tabular-nums.
+ * ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.note,
+.hint {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.hint {
+  color: var(--text-tertiary);
+}
+
+.pricingMeta {
+  margin: 0;
+  font-family: $font-mono;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.warning {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--quota-medium-color) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--quota-medium-color) 40%, transparent);
+  border-radius: 10px;
+  padding: 9px 12px;
+  overflow-wrap: anywhere;
+}
+
+.warningTitle {
+  font-weight: 600;
+}
+
+.unpricedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: $font-mono;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+
+  span {
+    color: var(--text-tertiary);
+  }
+}
+
+.errorBanner {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--danger-color);
+  background: var(--bg-error-light);
+  border: 1px solid var(--warning-border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- window tiles ---------- */
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+
+  @include mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.summaryTile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  min-width: 0;
+
+  dt {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+  }
+
+  dd {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+  }
+}
+
+.summaryValue {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.summaryDetail {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+/* ---------- cards ---------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  min-width: 0;
+}
+
+.cardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.cardCount {
+  font-size: 12.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    font: inherit;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    transition:
+      color var(--dur-hover) var(--ease-out-strong),
+      background-color var(--dur-hover) var(--ease-out-strong);
+
+    &:hover:not(:disabled) {
+      color: var(--text-primary);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-30);
+      outline-offset: 1px;
+    }
+
+    &[aria-pressed='true'] {
+      background: var(--floating-surface, var(--bg-primary));
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+  }
+}
+
+/* ---------- chart ---------- */
+
+.chart {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.chartSvg {
+  display: block;
+  max-width: 100%;
+  overflow: visible;
+  outline: none;
+  border-radius: 8px;
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--primary-30);
+  }
+}
+
+.chartGrid {
+  line {
+    stroke: var(--border-color);
+    stroke-width: 1;
+  }
+
+  text {
+    fill: var(--text-tertiary);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.chartHoverBand {
+  fill: color-mix(in srgb, var(--text-primary) 6%, transparent);
+}
+
+.chartTooltip {
+  position: absolute;
+  top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+  max-width: 320px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--floating-surface, var(--bg-primary));
+  box-shadow: var(--floating-shadow);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.chartTooltipHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.chartTooltipMeta {
+  color: var(--text-tertiary);
+}
+
+.chartTooltipList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 0;
+  padding: 4px 0 0;
+  list-style: none;
+  border-top: 1px solid var(--border-color);
+
+  li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.chartTooltipName {
+  min-width: 0;
+  color: var(--text-secondary);
+  @include text-ellipsis;
+}
+
+.chartTooltipValue {
+  font-family: $font-mono;
+}
+
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.legendValue {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+/* ---------- tables ---------- */
+
+.num {
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.numStrong {
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.modelName {
+  font-family: $font-mono;
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.cellStack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.identity,
+.identityMasked {
+  min-width: 0;
+  max-width: 320px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  @include text-ellipsis;
+}
+
+.identityMasked {
+  filter: blur(3px);
+  user-select: none;
+}
+
+.identitySub {
+  display: block;
+  max-width: 320px;
+  font-family: $font-mono;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  @include text-ellipsis;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: $radius-full;
+  background: color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.badgeWarning {
+  background: color-mix(in srgb, var(--quota-medium-color) 18%, transparent);
+  color: var(--warning-text);
+}
